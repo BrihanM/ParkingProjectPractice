@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Ingreso al Parqueadero</title>
+    <style>
+        /* Estilos minimalistas y modernos */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://static.vecteezy.com/system/resources/previews/016/219/165/non_2x/gradient-color-polygon-background-is-good-for-websites-banners-homepages-desktops-wallpapers-etc-vector.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.37);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background: rgba(0, 0, 0, 0.73);
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: #77aaff 3px solid;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        form {
+            background: rgba(244, 244, 244, 0.42);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        form input, form select, form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            background: #333333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        form button:hover {
+            background: #555;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: rgba(3, 103, 150, 0.69);
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        td {
+            background-color: rgba(249, 249, 249, 0.49);
+            color: #333;
+        }
+        tr:nth-child(even) td {
+            background-color: rgba(241, 241, 241, 0.5);
+        }
+
+        tr:hover td {
+            background-color: rgba(152, 152, 152, 0.55);
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        .actions a, .actions button {
+            display: inline-block;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.53);
+            background: #0075a5;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .actions a:hover, .actions button:hover {
+            background: #00385e;
+        }
+        .actions form {
+            display: inline;
+        }
+        .hidden {
+            display: none;
+        }
+        .edit-form input, .edit-form select {
+            width: auto;
+            display: inline-block;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Ingreso al Parqueadero</h1>
+</header>
+<<div class="container">
+    <form th:action="@{/parking/add}" th:object="${vehicule}" method="post" id="parqueaderoForm">
+        <label for="plate">Placa:</label>
+        <input type="text" id="plate" th:field="*{plate}" required>
+
+        <label for="entryTime">Hora de Ingreso:</label>
+        <input type="time" id="entryTime" th:field="*{entryTime}" required>
+
+        <label for="type">Tipo:</label>
+        <select id="type" th:field="*{type}" required>
+            <option value="">Seleccione...</option>
+            <option value="moto">Moto</option>
+            <option value="carro">Carro</option>
+        </select>
+        <div id="opcionesMoto" class="hidden">
+            <label for="helmet">¿Dejó el casco en el parqueadero?</label>
+            <select id="helmet" th:field="*{helmet}">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div id="opcionesCarro" class="hidden">
+            <label for="wash">¿Desea lavar el carro?</label>
+            <select id="wash" th:field="*{wash}">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <button type="submit" id="addButton">Agregar Vehículo</button>
+    </form>
+
+    <h2>Lista de Vehículos</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Hora de Ingreso</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="vehicule : ${vehicules}">
+            <td th:text="${vehicule.plate}">Placa</td>
+            <td th:text="${vehicule.type}">Tipo</td>
+            <td th:text="${vehicule.entryTime}">Hora de Ingreso</td>
+            <td class="actions">
+                <form th:action="@{/parking/charge/{id}(id=${vehicule.id})}" method="get">
+                    <button type="submit">Cobrar</button>
+                </form>
+                <form th:action="@{/parking/edit/{id}(id=${vehicule.id})}" method="get">
+                    <button type="submit">Editar</button>
+                </form>
+                <form th:action="@{/parking/delete/{id}(id=${vehicule.id})}" method="post">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('type').addEventListener('change', function() {
+        var tipo = this.value;
+        document.getElementById('opcionesMoto').classList.add('hidden');
+        document.getElementById('opcionesCarro').classList.add('hidden');
+        if (tipo === 'moto') {
+            document.getElementById('opcionesMoto').classList.remove('hidden');
+        } else if (tipo === 'carro') {
+            document.getElementById('opcionesCarro').classList.remove('hidden');
+        }
+    });
+
+    document.querySelectorAll('.edit-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const plate = form.action.split('/').pop();
+            const data = {};
+
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            fetch(`/parking/edit/${plate}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    location.reload();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
+</body>
+</html>
